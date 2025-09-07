@@ -4,7 +4,7 @@ import { rerender, useState } from "../jsgui-2/jsgui.mjs";
  * @template T
  * @typedef {Object} UseGetRequestProps
  * @property {Component} parent
- * @property {string} [id] - required if you want to call this in arbitrary order, else same rules as React
+ * @property {string} [key] - required if you want to call this in arbitrary order, else same rules as React
  * @property {() => Promise<T>} fetch
  * @property {(errorOrResponse: any) => void} [onError]
  * @property {string} [refetchOn]
@@ -14,10 +14,10 @@ import { rerender, useState } from "../jsgui-2/jsgui.mjs";
  * @param {UseGetRequestProps<T>} props
  * @returns {[boolean, T, () => void, boolean]} */
 export function useGetRequest(props) {
-  const {parent, id = "useGetRequest", fetch, onError, refetchOn} = props;
+  const {parent, key = "useGetRequest", fetch, onError, refetchOn} = props;
   let defaultValue;
   if (!("defaultValue" in props)) defaultValue = [];
-  const state = useState(parent, id, {
+  const state = useState(parent, key, {
     prevRefetchOn: /** @type {string | null} */(null),
     loading: true,
     value: /** @type {T} */(defaultValue),
@@ -30,9 +30,7 @@ export function useGetRequest(props) {
     }).catch(onError);
   }
   const refetchOn_string = JSON.stringify(refetchOn);
-  console.log('ayaya.refetch.0', {refetchOn_string, prevRefetchOn: state.prevRefetchOn})
   if (refetchOn_string !== state.prevRefetchOn) {
-    console.log('ayaya.refetch')
     state.prevRefetchOn = refetchOn_string;
     refetch();
   }
