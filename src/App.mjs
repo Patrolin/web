@@ -1,4 +1,5 @@
 import { div, findMatchingRoute, renderBody, span } from "../jsgui-2/jsgui.mjs";
+import { PalettePickerPage } from "./PalettePickerPage.mjs";
 import { RecipesPage } from "./RecipesPage.mjs";
 
 /**
@@ -10,17 +11,22 @@ import { RecipesPage } from "./RecipesPage.mjs";
 /** @type {Route[]} */
 const routes = [
   {
+    label: "Palette Picker",
+    path: "/palette",
+    component: PalettePickerPage,
+  },
+  {
     label: "Recipes",
     path: "/recipes",
     component: RecipesPage,
-  }
+  },
 ];
 
 /**
  * @param {Component} parent
  * @param {Route} route
  * @param {boolean} isMatchingRoute */
-function NavmenuItem (parent, route, isMatchingRoute) {
+function NavmenuItem(parent, route, isMatchingRoute) {
   span(parent, route.label, {
     width: "100%",
     padding: "4px 8px",
