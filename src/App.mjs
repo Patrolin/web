@@ -28,6 +28,7 @@ const routes = [
  * @param {boolean} isSelected */
 function NavmenuItem(parent, route, isSelected) {
   const wrapper = div(parent, {
+    key: route.path,
     width: "100%",
     className: "navmenu-link",
     attributes: {"data-is-selected": isSelected},
