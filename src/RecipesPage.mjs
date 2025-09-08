@@ -20,7 +20,7 @@ export function RecipesPage(parent) {
   });
   const recipes = recipeFiles.filter(v => v.name.endsWith(".toml"));
 
-  const wrapper = div(parent, {width: "100%", height: "100%", flex: "y", flexAlign: "start"});
+  const wrapper = div(parent, {width: "100%", height: "100%", attributes: {flex: "y", flexAlign: "start"}});
   for (let recipe of recipes) {
     span(wrapper, recipe.name);
   }
