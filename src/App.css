@@ -1,1 +1,11 @@
 /* TODO: styles */
+.navmenu-link {
+  padding: 6px 8px 0 0;
+}
+.navmenu-link span {
+  width: 100%;
+  padding: 0 0 4px 8px;
+}
+.navmenu-link[data-is-selected="true"] span {
+  border-bottom: 1px solid white;
+}

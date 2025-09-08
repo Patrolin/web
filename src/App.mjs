@@ -25,14 +25,14 @@ const routes = [
 /**
  * @param {Component} parent
  * @param {Route} route
- * @param {boolean} isMatchingRoute */
-function NavmenuItem(parent, route, isMatchingRoute) {
-  span(parent, route.label, {
+ * @param {boolean} isSelected */
+function NavmenuItem(parent, route, isSelected) {
+  const wrapper = div(parent, {
     width: "100%",
-    padding: "4px 8px",
     className: "navmenu-link",
-    attributes: {"data-matching-route": isMatchingRoute},
+    attributes: {"data-is-selected": isSelected},
   });
+  span(wrapper, route.label);
 }
 
 /**

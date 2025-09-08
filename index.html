@@ -2,6 +2,16 @@
 <head>
 <style>
 /* TODO: styles */
+.navmenu-link {
+  padding: 6px 8px 0 0;
+}
+.navmenu-link span {
+  width: 100%;
+  padding: 0 0 4px 8px;
+}
+.navmenu-link[data-is-selected="true"] span {
+  border-bottom: 1px solid white;
+}
 /* fixes for default browser styles */
 :root {
   --fontSize: 14px;
@@ -31,6 +41,7 @@ html, body {
 body {
   background: #0f0f0f;
   color: #f0f0f0;
+  font-family: Roboto, Arial, sans-serif;
 }
 
 /* font-size */
@@ -144,13 +155,13 @@ const routes = [
   },
 ];
 
-function NavmenuItem(parent, route, isMatchingRoute) {
-  span(parent, route.label, {
+function NavmenuItem(parent, route, isSelected) {
+  const wrapper = div(parent, {
     width: "100%",
-    padding: "4px 8px",
     className: "navmenu-link",
-    attributes: {"data-matching-route": isMatchingRoute},
+    attributes: {"data-is-selected": isSelected},
   });
+  span(wrapper, route.label);
 }
 
 function App(parent) {
