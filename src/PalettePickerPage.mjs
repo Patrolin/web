@@ -1,4 +1,4 @@
-import { div, span } from "../jsgui-2/jsgui.mjs";
+import { div, span } from "src/jsgui/jsgui.mjs";
 
 /**
  * @param {Component} parent

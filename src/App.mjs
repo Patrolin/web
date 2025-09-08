@@ -1,4 +1,4 @@
-import { div, findMatchingRoute, renderBody, span } from "../jsgui-2/jsgui.mjs";
+import { div, findMatchingRoute, renderBody, span } from "src/jsgui/jsgui.mjs";
 import { PalettePickerPage } from "./PalettePickerPage.mjs";
 import { RecipesPage } from "./RecipesPage.mjs";
 

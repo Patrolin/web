@@ -1,4 +1,4 @@
-import { rerender, useState } from "../jsgui-2/jsgui.mjs";
+import { rerender, useState } from "src/jsgui/jsgui.mjs";
 
 /**
  * @template T
