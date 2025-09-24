@@ -4,7 +4,7 @@
   background: #303030;
 }
 .navmenu-link {
-  padding: 8px 8px 2px 8px;
+  padding: 6px 4px 2px 8px;
 }
 .navmenu-link span {
   border-bottom: 1px solid transparent;
@@ -16,8 +16,4 @@
   flex: 1;
   height: 100%;
   padding: 8px;
-}
-
-li {
-  padding: 2px 0;
 }

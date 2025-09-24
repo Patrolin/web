@@ -1,4 +1,4 @@
-import { li, link, span, ul, useGetRequest, useMemo } from "src/jsgui/jsgui.mjs";
+import { li, span, ul, useGetRequest, useMemo } from "src/jsgui/jsgui.mjs";
 
 /**
  * @typedef {Object} Recipe
