@@ -327,7 +327,7 @@ function _getChildInfo(parent, key, tagName, defaultState = {}) {
 }
 function _appendOrMoveElement(parent, info) {
   const element = info.element;
-  if (element == null) return; // NOTE: things like useState() store data, but have no element
+  if (element == null) return; /* NOTE: things like useState() store data, but have no element */
 
   info._nextChild = (element.firstElementChild);
   if (element === parent._nextChild) {
@@ -345,8 +345,9 @@ function getElement(parent, tagName, props = {}) {
 }
 
 // hooks
-function useState(parent, key = "", defaultState) {
-  const info = _getChildInfo(parent, `useState(${key})`, undefined, (defaultState));
+function useState(parent, props) {
+  const {key = "", value} = props;
+  const info = _getChildInfo(parent, `useState(${key})`, undefined, (value));
   const { state } = info;
   return state;
 }
@@ -366,10 +367,13 @@ function useGetRequest(parent, props) {
   let defaultValue;
   if (!("defaultValue" in props)) defaultValue = [];
   else {defaultValue = props.defaultValue};
-  const state = useState(parent, `useGetRequest.${key}`, {
-    prevRefetchOn: (null),
-    loading: true,
-    value: (defaultValue),
+  const state = useState(parent, {
+    key: `useGetRequest.${key}`,
+    value: {
+      prevRefetchOn: (null),
+      loading: true,
+      value: (defaultValue),
+    },
   });
   const refetch = () => {
     if (state.loading === false) {
@@ -610,12 +614,14 @@ function webgl(parent, props, webglProps) {
   const info = getElement(parent, "canvas", props);
   const node = (info.element);
   // TODO: type check the state
-  const state = useState(info, "webgl", ({
-    gl: null,
-    programs: null,
-    rect: new DOMRect(),
-    didCompile: false,
-  }));
+  const state = useState(info, {
+    value: ({
+      gl: null,
+      programs: null,
+      rect: new DOMRect(),
+      didCompile: false,
+    }),
+  });
   if (state.gl == null) {
     const gl = node.getContext("webgl2");
     if (!gl) return;
@@ -746,7 +752,6 @@ function RecipesPage(parent) {
     const renderRecipeGroup = (parent, recipeGroup) => {
     const list = ul(parent);
     for (let [groupKey, node] of Object.entries(recipeGroup)) {
-      console.log('ayaya.node', groupKey, node);
       const listItem = li(list);
       if ('name' in node) {
         // TODO: dropdowns

@@ -59,7 +59,6 @@ export function RecipesPage(parent) {
   const renderRecipeGroup = (parent, recipeGroup) => {
     const list = ul(parent);
     for (let [groupKey, node] of Object.entries(recipeGroup)) {
-      console.log('ayaya.node', groupKey, node);
       const listItem = li(list);
       if ('name' in node) {
         // TODO: dropdowns
