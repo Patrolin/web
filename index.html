@@ -3,11 +3,7 @@
 <style>
 /* TODO: styles */
 .navmenu-link {
-  padding: 6px 8px 0 0;
-}
-.navmenu-link span {
-  width: 100%;
-  padding: 0 0 4px 8px;
+  padding: 6px 8px 4px 8px;
 }
 .navmenu-link[data-is-selected="true"] span {
   border-bottom: 1px solid white;
@@ -17,14 +13,18 @@
   --fontSize: 14px;
 }
 * {
+  /* sane defaults */
   box-sizing: border-box;
+  display: inline-block;
+  /* clear browser nonsense */
   min-width: 0;
   margin: 0;
   outline: none;
   border: none;
   background: none;
-  display: inline-block;
   overflow: hidden;
+  padding: 0;
+  /* sane defaults */
   color: inherit;
   line-height: unset;
   font-size: var(--font-size);
@@ -61,7 +61,7 @@ h4, h5, h6 {
   --font-size: 12px;
   font-weight: 400;
 }
-h1, h2, h3, h4, h5, h6, span {
+h1, h2, h3, h4, h5, h6, span, a {
   line-height: round(down, calc(var(--fontSize) * 1.4));
 }
 
@@ -101,44 +101,48 @@ button:active {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-}
-[flex="x"] {
-  flex-direction: row;
-}
-[flex="x-reverse"] {
-  flex-direction: row-reverse;
-}
-[flex="y"] {
-  flex-direction: column;
-}
-[flex="y-reverse"] {
-  flex-direction: column-reverse;
-}
-
-[flex-align="center"] {
-  justify-content: center;
-  align-items: center;
   flex-wrap: wrap;
 }
-[flex-align="justify"] {
+[flex^="x"] {
+  flex-direction: row;
+}
+[flex^="x"][flex-reverse="true"] {
+  flex-direction: row-reverse;
+}
+[flex^="y"] {
+  flex-direction: column;
+}
+[flex^="y"][flex-reverse="true"] {
+  flex-direction: column-reverse;
+}
+[flex$="justify"] {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
 }
-[flex-align="start"] {
+[flex$="start"] {
   justify-content: flex-start;
   align-items: flex-start;
   flex-wrap: wrap;
 }
-[flex-align="scroll"] {
+[flex="x-scroll"] {
   justify-content: flex-start;
   align-items: stretch;
+  overflow-x: auto;
 }
-[flex="^x"][flex-align="scroll"] {
-  overflow-x: scroll;
+[flex="y-scroll"] {
+  justify-content: flex-start;
+  align-items: stretch;
+  overflow-y: auto;
 }
-[flex="^y"][flex-align="scroll"] {
-  overflow-y: scroll;
+[flex-align="center"] {
+  align-items: center;
+}
+[flex-align="start"] {
+  align-items: flex-start;
+}
+[flex-align="stretch"] {
+  align-items: stretch;
 }
 </style>
 <script>
@@ -171,13 +175,13 @@ function App(parent) {
   const wrapper = div(parent, {
     width: "100%",
     height: "100%",
-    attributes: {flex: "x", flexAlign: "justify"},
+    attributes: {flex: "x-justify"},
   });
   const navmenu = div(wrapper, {
     width: 200,
     height: "100%",
     background: "#303030",
-    attributes: {flex: "y", flexAlign: "scroll"},
+    attributes: {flex: "y-scroll"},
   });
   for (let route of routes) {
     NavmenuItem(navmenu, route, route === matchingRoute);
@@ -186,34 +190,12 @@ function App(parent) {
   const contentWrapper = div(wrapper, {
     flex: 1,
     height: "100%",
-    attributes: {flex: "y", flexAlign: "scroll"},
+    attributes: {flex: "y-scroll"},
   });
   matchingRoute?.component(contentWrapper);
   return wrapper;
 }
 renderBody(App, {});
-function PalettePickerPage(parent) {
-  const wrapper = div(parent);
-  span(wrapper, "PalettePickerPage");
-  return wrapper;
-}
-function RecipesPage(parent) {
-  const [recipesLoading, recipeFiles] = useGetRequest({
-    parent,
-    fetch: async () => {
-      const response = await (await fetch("https://api.github.com/repos/Patrolin/qrecipes/contents/src")).json();
-      return (response);
-    },
-  });
-  const recipes = recipeFiles.filter(v => v.name.endsWith(".toml"));
-
-  const wrapper = div(parent, {width: "100%", height: "100%", attributes: {flex: "y", flexAlign: "start"}});
-  for (let recipe of recipes) {
-    span(wrapper, recipe.name);
-  }
-  console.log('ayaya.recipes', {recipesLoading, recipes})
-  return wrapper;
-}
 function addPx(value) {
   return typeof value === "string" ? value : `${value}px`;
 }
@@ -354,6 +336,11 @@ function div(parent, props) {
 }
 function span(parent, text, props) {
   const info = getElement(parent, "span", props);
+  info.element.textContent = (text);
+  return info;
+}
+function link(parent, text, props) {
+  const info = getElement(parent, "a", props);
   info.element.textContent = (text);
   return info;
 }
@@ -639,6 +626,28 @@ function webgl(parent, props, webglProps) {
     gl.viewport(0, 0, rect.width, rect.height);
     render(state);
   }
+}
+function PalettePickerPage(parent) {
+  const wrapper = div(parent);
+  span(wrapper, "PalettePickerPage");
+  return wrapper;
+}
+function RecipesPage(parent) {
+  const [recipesLoading, recipeFiles] = useGetRequest({
+    parent,
+    fetch: async () => {
+      const response = await (await fetch("https://api.github.com/repos/Patrolin/qrecipes/contents/src")).json();
+      return (response);
+    },
+  });
+  const recipes = recipeFiles.filter(v => v.name.endsWith(".toml"));
+
+  const wrapper = div(parent, {width: "100%", height: "100%", attributes: {flex: "y", flexAlign: "start"}});
+  for (let recipe of recipes) {
+    span(wrapper, recipe.name);
+  }
+  console.log('ayaya.recipes', {recipesLoading, recipes})
+  return wrapper;
 }
 function useGetRequest(props) {
   const {parent, key = "useGetRequest", fetch, onError, refetchOn} = props;

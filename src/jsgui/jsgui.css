@@ -3,14 +3,18 @@
   --fontSize: 14px;
 }
 * {
+  /* sane defaults */
   box-sizing: border-box;
+  display: inline-block;
+  /* clear browser nonsense */
   min-width: 0;
   margin: 0;
   outline: none;
   border: none;
   background: none;
-  display: inline-block;
   overflow: hidden;
+  padding: 0;
+  /* sane defaults */
   color: inherit;
   line-height: unset;
   font-size: var(--font-size);
@@ -47,7 +51,7 @@ h4, h5, h6 {
   --font-size: 12px;
   font-weight: 400;
 }
-h1, h2, h3, h4, h5, h6, span {
+h1, h2, h3, h4, h5, h6, span, a {
   line-height: round(down, calc(var(--fontSize) * 1.4));
 }
 
@@ -87,42 +91,46 @@ button:active {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-}
-[flex="x"] {
-  flex-direction: row;
-}
-[flex="x-reverse"] {
-  flex-direction: row-reverse;
-}
-[flex="y"] {
-  flex-direction: column;
-}
-[flex="y-reverse"] {
-  flex-direction: column-reverse;
-}
-
-[flex-align="center"] {
-  justify-content: center;
-  align-items: center;
   flex-wrap: wrap;
 }
-[flex-align="justify"] {
+[flex^="x"] {
+  flex-direction: row;
+}
+[flex^="x"][flex-reverse="true"] {
+  flex-direction: row-reverse;
+}
+[flex^="y"] {
+  flex-direction: column;
+}
+[flex^="y"][flex-reverse="true"] {
+  flex-direction: column-reverse;
+}
+[flex$="justify"] {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
 }
-[flex-align="start"] {
+[flex$="start"] {
   justify-content: flex-start;
   align-items: flex-start;
   flex-wrap: wrap;
 }
-[flex-align="scroll"] {
+[flex="x-scroll"] {
   justify-content: flex-start;
   align-items: stretch;
+  overflow-x: auto;
 }
-[flex="^x"][flex-align="scroll"] {
-  overflow-x: scroll;
+[flex="y-scroll"] {
+  justify-content: flex-start;
+  align-items: stretch;
+  overflow-y: auto;
 }
-[flex="^y"][flex-align="scroll"] {
-  overflow-y: scroll;
+[flex-align="center"] {
+  align-items: center;
+}
+[flex-align="start"] {
+  align-items: flex-start;
+}
+[flex-align="stretch"] {
+  align-items: stretch;
 }

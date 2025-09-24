@@ -45,13 +45,13 @@ function App(parent) {
   const wrapper = div(parent, {
     width: "100%",
     height: "100%",
-    attributes: {flex: "x", flexAlign: "justify"},
+    attributes: {flex: "x-justify"},
   });
   const navmenu = div(wrapper, {
     width: 200,
     height: "100%",
     background: "#303030",
-    attributes: {flex: "y", flexAlign: "scroll"},
+    attributes: {flex: "y-scroll"},
   });
   for (let route of routes) {
     NavmenuItem(navmenu, route, route === matchingRoute);
@@ -60,7 +60,7 @@ function App(parent) {
   const contentWrapper = div(wrapper, {
     flex: 1,
     height: "100%",
-    attributes: {flex: "y", flexAlign: "scroll"},
+    attributes: {flex: "y-scroll"},
   });
   matchingRoute?.component(contentWrapper);
   return wrapper;
