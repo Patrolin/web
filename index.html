@@ -1,12 +1,28 @@
 <!DOCTYPE html>
 <head>
 <style>
-/* TODO: styles */
+.navmenu {
+  width: 200px;
+  height: 100%;
+  background: #303030;
+}
 .navmenu-link {
-  padding: 6px 8px 4px 8px;
+  padding: 8px 8px 2px 8px;
+}
+.navmenu-link span {
+  border-bottom: 1px solid transparent;
 }
 .navmenu-link[data-is-selected="true"] span {
-  border-bottom: 1px solid white;
+  border-color: white;
+}
+.page-content {
+  flex: 1;
+  height: 100%;
+  padding: 8px;
+}
+
+li {
+  padding: 2px 0;
 }
 /* fixes for default browser styles */
 :root {
@@ -42,6 +58,18 @@ body {
   background: #0f0f0f;
   color: #f0f0f0;
   font-family: Roboto, Arial, sans-serif;
+}
+ul, ol {
+  display: block;
+  padding-inline-start: 16px;
+  list-style: square;
+}
+li {
+  display: list-item;
+  overflow: unset;
+}
+li > * {
+  vertical-align: bottom;
 }
 
 /* font-size */
@@ -160,11 +188,11 @@ const routes = [
 ];
 
 function NavmenuItem(parent, route, isSelected) {
-  const wrapper = div(parent, {
+  const wrapper = link(parent, "", {
     key: route.path,
     width: "100%",
     className: "navmenu-link",
-    attributes: {"data-is-selected": isSelected},
+    attributes: {"data-is-selected": isSelected, href: route.path},
   });
   span(wrapper, route.label);
 }
@@ -172,30 +200,24 @@ function NavmenuItem(parent, route, isSelected) {
 function App(parent) {
   const matchingRoute = findMatchingRoute(routes, "/web");
   // navmenu
-  const wrapper = div(parent, {
-    width: "100%",
-    height: "100%",
-    attributes: {flex: "x-justify"},
-  });
-  const navmenu = div(wrapper, {
-    width: 200,
-    height: "100%",
-    background: "#303030",
+  const navmenu = div(parent, {
+    className: "navmenu",
     attributes: {flex: "y-scroll"},
   });
   for (let route of routes) {
     NavmenuItem(navmenu, route, route === matchingRoute);
   }
   // matching route
-  const contentWrapper = div(wrapper, {
-    flex: 1,
-    height: "100%",
+  const contentWrapper = div(parent, {
+    className: "page-content",
     attributes: {flex: "y-scroll"},
   });
   matchingRoute?.component(contentWrapper);
-  return wrapper;
+  return parent;
 }
-renderBody(App, {});
+renderBody(App, {
+  attributes: {flex: "x-justify"},
+});
 function addPx(value) {
   return typeof value === "string" ? value : `${value}px`;
 }
@@ -323,25 +345,73 @@ function getElement(parent, tagName, props = {}) {
 }
 
 // hooks
-function useState(parent, key, defaultState) {
-  if (key == null || key === "") throw "key is required in useState()";
+function useState(parent, key = "", defaultState) {
   const info = _getChildInfo(parent, `useState(${key})`, undefined, (defaultState));
   const { state } = info;
   return state;
+}
+function useMemo(parent, props) {
+  const {key, value, dependOn = []} = props;
+  const info = _getChildInfo(parent, `useMemo(${key})`, undefined, {});
+  const { state } = info;
+  const {prevDependOn = []} = state;
+  if (prevDependOn.length !== dependOn.length || dependOn.some((v, i) => v !== prevDependOn[i])) {
+    state.value = value();
+    state.prevDependOn = dependOn;
+  }
+  return state.value;
+}
+function useGetRequest(parent, props) {
+  const {key = "", fetch, onError, refetchOn} = props;
+  let defaultValue;
+  if (!("defaultValue" in props)) defaultValue = [];
+  else {defaultValue = props.defaultValue};
+  const state = useState(parent, `useGetRequest.${key}`, {
+    prevRefetchOn: (null),
+    loading: true,
+    value: (defaultValue),
+  });
+  const refetch = () => {
+    if (state.loading === false) {
+      state.loading = true;
+      rerender();
+    }
+    Promise.try(fetch).then((response) => {
+      state.value = response;
+      state.loading = false;
+      rerender();
+    }).catch(onError);
+  }
+  const isInitialLoad = state.prevRefetchOn === null;
+  const refetchOn_string = JSON.stringify(refetchOn);
+  if (refetchOn_string !== state.prevRefetchOn) {
+    state.prevRefetchOn = refetchOn_string;
+    refetch();
+  }
+  return [state.loading, state.value, refetch, isInitialLoad];
 }
 
 // components
 function div(parent, props) {
   return getElement(parent, "div", props);
 }
+function ul(parent, props) {
+  return getElement(parent, "ul", props);
+}
+function ol(parent, props) {
+  return getElement(parent, "ol", props);
+}
+function li(parent, props) {
+  return getElement(parent, "li", props);
+}
 function span(parent, text, props) {
   const info = getElement(parent, "span", props);
-  info.element.textContent = (text);
+  info.element.textContent = (text); /* NOTE: this overwrites all child nodes */
   return info;
 }
 function link(parent, text, props) {
   const info = getElement(parent, "a", props);
-  info.element.textContent = (text);
+  if (text) span(info, text); /* NOTE: don't overwrite child nodes */
   return info;
 }
 function svg(parent, props, innerHTML) {
@@ -633,44 +703,62 @@ function PalettePickerPage(parent) {
   return wrapper;
 }
 function RecipesPage(parent) {
-  const [recipesLoading, recipeFiles] = useGetRequest({
-    parent,
+  const [recipesLoading, recipesYaml] = useGetRequest(parent, {
+    defaultValue: "",
     fetch: async () => {
-      const response = await (await fetch("https://api.github.com/repos/Patrolin/qrecipes/contents/src")).json();
+      const response = await (await fetch("https://raw.githubusercontent.com/Patrolin/qrecipes/refs/heads/main/index.yaml")).text();
       return (response);
     },
   });
-  const recipes = recipeFiles.filter(v => v.name.endsWith(".toml"));
-
-  const wrapper = div(parent, {width: "100%", height: "100%", attributes: {flex: "y", flexAlign: "start"}});
-  for (let recipe of recipes) {
-    span(wrapper, recipe.name);
-  }
-  console.log('ayaya.recipes', {recipesLoading, recipes})
-  return wrapper;
-}
-function useGetRequest(props) {
-  const {parent, key = "useGetRequest", fetch, onError, refetchOn} = props;
-  let defaultValue;
-  if (!("defaultValue" in props)) defaultValue = [];
-  const state = useState(parent, key, {
-    prevRefetchOn: (null),
-    loading: true,
-    value: (defaultValue),
+  const recipesRoot = useMemo(parent, {
+    value: () => {
+      const recipes = ([]);
+      for (const line of recipesYaml.split("\n")) {
+        if (line.startsWith("#") || !line.startsWith("- ")) continue;
+        const i = line.indexOf(": ");
+        const path = line.slice(2, i);
+        const file_name_index = path.lastIndexOf("/");
+        const group = path.slice(0, file_name_index);
+        const name = line.slice(i + 2);
+        recipes.push({
+          group,
+          path,
+          name,
+        });
+      }
+      const recipesRoot = ({});
+      for (const recipe of recipes) {
+        let currentNode = recipesRoot;
+        const groupPath = recipe.group.split("/");
+        for (let groupKey of groupPath) {
+          if (!(groupKey in currentNode)) {
+            currentNode[groupKey] = ({});
+          }
+          currentNode = (currentNode[groupKey]);
+        }
+        currentNode[recipe.name] = recipe;
+      }
+      return recipesRoot;
+    },
+    dependOn: [recipesYaml],
   });
-  const refetch = () => {
-    Promise.try(fetch).then((response) => {
-      state.value = response;
-      state.loading = false;
-      rerender();
-    }).catch(onError);
+
+    const renderRecipeGroup = (parent, recipeGroup) => {
+    const list = ul(parent);
+    for (let [groupKey, node] of Object.entries(recipeGroup)) {
+      console.log('ayaya.node', groupKey, node);
+      const listItem = li(list);
+      if ('name' in node) {
+        // TODO: dropdowns
+        span(listItem, groupKey);
+      } else {
+        span(listItem, groupKey);
+        renderRecipeGroup(listItem, node);
+      }
+    }
   }
-  const refetchOn_string = JSON.stringify(refetchOn);
-  if (refetchOn_string !== state.prevRefetchOn) {
-    state.prevRefetchOn = refetchOn_string;
-    refetch();
-  }
-  const isInitialLoad = state.prevRefetchOn === null;
-  return [state.loading, state.value, refetch, isInitialLoad];
+  console.log('ayaya.recipes', recipesRoot)
+  renderRecipeGroup(parent, recipesRoot);
+  return parent;
 }
 </script>

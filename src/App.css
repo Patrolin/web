@@ -1,7 +1,23 @@
-/* TODO: styles */
+.navmenu {
+  width: 200px;
+  height: 100%;
+  background: #303030;
+}
 .navmenu-link {
-  padding: 6px 8px 4px 8px;
+  padding: 8px 8px 2px 8px;
+}
+.navmenu-link span {
+  border-bottom: 1px solid transparent;
 }
 .navmenu-link[data-is-selected="true"] span {
-  border-bottom: 1px solid white;
+  border-color: white;
+}
+.page-content {
+  flex: 1;
+  height: 100%;
+  padding: 8px;
+}
+
+li {
+  padding: 2px 0;
 }

@@ -1,4 +1,4 @@
-import { div, findMatchingRoute, renderBody, span } from "src/jsgui/jsgui.mjs";
+import { div, findMatchingRoute, link, renderBody, span } from "src/jsgui/jsgui.mjs";
 import { PalettePickerPage } from "./PalettePickerPage.mjs";
 import { RecipesPage } from "./RecipesPage.mjs";
 
@@ -27,11 +27,11 @@ const routes = [
  * @param {Route} route
  * @param {boolean} isSelected */
 function NavmenuItem(parent, route, isSelected) {
-  const wrapper = div(parent, {
+  const wrapper = link(parent, "", {
     key: route.path,
     width: "100%",
     className: "navmenu-link",
-    attributes: {"data-is-selected": isSelected},
+    attributes: {"data-is-selected": isSelected, href: route.path},
   });
   span(wrapper, route.label);
 }
@@ -42,27 +42,21 @@ function NavmenuItem(parent, route, isSelected) {
 function App(parent) {
   const matchingRoute = findMatchingRoute(routes, "/web");
   // navmenu
-  const wrapper = div(parent, {
-    width: "100%",
-    height: "100%",
-    attributes: {flex: "x-justify"},
-  });
-  const navmenu = div(wrapper, {
-    width: 200,
-    height: "100%",
-    background: "#303030",
+  const navmenu = div(parent, {
+    className: "navmenu",
     attributes: {flex: "y-scroll"},
   });
   for (let route of routes) {
     NavmenuItem(navmenu, route, route === matchingRoute);
   }
   // matching route
-  const contentWrapper = div(wrapper, {
-    flex: 1,
-    height: "100%",
+  const contentWrapper = div(parent, {
+    className: "page-content",
     attributes: {flex: "y-scroll"},
   });
   matchingRoute?.component(contentWrapper);
-  return wrapper;
+  return parent;
 }
-renderBody(App, {});
+renderBody(App, {
+  attributes: {flex: "x-justify"},
+});
